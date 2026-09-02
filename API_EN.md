@@ -58,7 +58,8 @@ After a successful update, the API returns the complete LED state. desired is th
 - The combined limit for the request line and headers is 16 KiB. The body is also limited to 16 KiB, and no more than 64 headers are accepted.
 - The server allows 2 seconds to read the complete request.
 - No more than 32 connections can be handled at the same time.
-- The rate limiter starts with a burst of 40 requests and replenishes 20 requests per second. Once the burst is exhausted, the server returns 429.
+- The rate limiter starts with a burst of 40 requests and replenishes 20 requests per second. Once the burst is exhausted, the server returns 429. The limit is shared by all clients of the process.
+- The server also returns 400 for a body on a request other than PUT and for a duplicated Host, Authorization, Content-Length or Content-Type header.
 
 The Arduino port has a single owner, which is this application. Do not open the serial port yourself. Control the LEDs only through the API.
 
@@ -89,13 +90,13 @@ curl -s http://127.0.0.1:32123/api/v1/capabilities \
   -H "Authorization: Bearer TOKEN"
 ```
 
-Example response for version 0.6.9:
+Example response:
 
 ```json
 {
   "ok": true,
   "name": "windows-led",
-  "version": "0.6.9",
+  "version": "0.6.38",
   "processId": 4821,
   "port": 32123,
   "colors": ["white", "red", "green", "blue", "yellow", "cyan", "pink", "orange", "purple"],
@@ -132,6 +133,12 @@ Example response when Arduino has not confirmed the state yet:
   "alert": "none",
   "alertsSupported": true
 }
+```
+
+The color field mirrors the input form. After PUT with a name it is a string; after PUT with #RRGGBB or an object it is an object with r, g and b. Parse both forms:
+
+```json
+"color": {"r": 0, "g": 170, "b": 255}
 ```
 
 Field meanings:
@@ -484,11 +491,11 @@ Errors use this response format:
 - 401 - The token is missing or invalid. Check the Authorization header.
 - 403 - An Origin header was sent. Use a backend or local process instead of a browser.
 - 404 - The path is unknown. Check the URL.
-- 405 - The method is not supported. Use GET or PUT as documented for the endpoint.
+- 405 - The method is not supported. Use GET or PUT as documented for the endpoint. For paths under /api/v1/ the token is checked first, so a request without a valid token returns 401, not 405.
 - 408 - The complete request was not received within 2 seconds. Send the full request more quickly.
 - 413 - The body is larger than 16 KiB or its declared length exceeds the limit. Reduce the body size.
 - 415 - A PUT request is missing Content-Type: application/json or Content-Length. Add both headers.
-- 429 - The rate limit has been exhausted. Reduce the request rate. The initial burst is 40, followed by 20 requests per second.
+- 429 - The rate limit has been exhausted. Reduce the request rate. The initial burst is 40, followed by 20 requests per second. The limit is shared by all clients.
 - 431 - The request line and headers exceed 16 KiB. Remove unnecessary headers.
 - 500 - Reading or writing the state or preferences failed. Check the application log and data-directory permissions.
 - 503 - All 32 connection slots are occupied. Try again after some connections have closed.
@@ -497,7 +504,7 @@ For HTTP syntax errors with status 408, 413, 415 or 431, the server usually retu
 
 ## Troubleshooting
 
-- 401 unauthorized - the token is outdated, contains whitespace or cannot be read by the process. On Linux, the file has permissions 0600.
+- 401 unauthorized - the Authorization header carries an outdated or wrong token, or the process cannot read the token file. The file content is trimmed on start, so surrounding whitespace in the file is harmless. On Linux, the file has permissions 0600.
 - connection refused - the application is not running, has not opened the API yet or another process is using the port. Check GET /health.
 - connected: false - Arduino is disconnected or has not been recognized. desired remains stored and will be sent after reconnection.
 - alertsSupported: false - the firmware does not recognize the ALERT command. LED control still works, but printer alerts remain disabled until the next reconnect.

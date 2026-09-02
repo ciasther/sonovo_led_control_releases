@@ -58,7 +58,8 @@ Po udanej zmianie API zwraca pełny stan LED. Pole desired oznacza stan przyjęt
 - Łączny limit linii startowej i nagłówków wynosi 16 KiB. Body również może mieć najwyżej 16 KiB, a liczba nagłówków nie może przekroczyć 64.
 - Serwer ma 2 sekundy na odczyt całego żądania.
 - Jednocześnie może obsługiwać najwyżej 32 połączenia.
-- Ogranicznik ma początkowy burst równy 40 żądaniom i odnawia 20 żądań na sekundę. Po wykorzystaniu burstu serwer zwraca kod 429.
+- Ogranicznik ma początkowy burst równy 40 żądaniom i odnawia 20 żądań na sekundę. Po wykorzystaniu burstu serwer zwraca kod 429. Limit jest wspólny dla wszystkich klientów procesu.
+- Serwer zwraca 400 także dla ciała w żądaniu innym niż PUT oraz dla zduplikowanego nagłówka Host, Authorization, Content-Length lub Content-Type.
 
 Port Arduino ma jednego właściciela, czyli tę aplikację. Nie otwieraj samodzielnie portu szeregowego. Diodami steruj tylko przez API.
 
@@ -89,13 +90,13 @@ curl -s http://127.0.0.1:32123/api/v1/capabilities \
   -H "Authorization: Bearer TOKEN"
 ```
 
-Przykładowa odpowiedź dla wersji 0.6.9:
+Przykładowa odpowiedź:
 
 ```json
 {
   "ok": true,
   "name": "windows-led",
-  "version": "0.6.9",
+  "version": "0.6.38",
   "processId": 4821,
   "port": 32123,
   "colors": ["white", "red", "green", "blue", "yellow", "cyan", "pink", "orange", "purple"],
@@ -132,6 +133,12 @@ Przykład odpowiedzi w sytuacji, gdy Arduino nie potwierdziło jeszcze stanu:
   "alert": "none",
   "alertsSupported": true
 }
+```
+
+Pole color odzwierciedla formę wejścia. Po PUT z nazwą jest stringiem; po PUT z #RRGGBB albo obiektem jest obiektem z r, g i b. Parsuj obie formy:
+
+```json
+"color": {"r": 0, "g": 170, "b": 255}
 ```
 
 Znaczenie poszczególnych pól:
@@ -484,11 +491,11 @@ Błąd jest zwracany w takim formacie:
 - 401 - Brakuje tokenu albo token jest nieprawidłowy. Sprawdź nagłówek Authorization.
 - 403 - Wysłano nagłówek Origin. Zamiast przeglądarki użyj backendu albo procesu lokalnego.
 - 404 - Ścieżka jest nieznana. Sprawdź URL.
-- 405 - Metoda nie jest obsługiwana. Użyj GET albo PUT zgodnie z opisem endpointu.
+- 405 - Metoda nie jest obsługiwana. Użyj GET albo PUT zgodnie z opisem endpointu. Dla ścieżek pod /api/v1/ token jest sprawdzany najpierw, więc żądanie bez poprawnego tokenu dostaje 401, nie 405.
 - 408 - Serwer nie odebrał całego żądania w ciągu 2 sekund. Wyślij kompletne żądanie szybciej.
 - 413 - Body przekracza 16 KiB albo jego długość nie mieści się w limicie. Zmniejsz body.
 - 415 - Żądanie PUT nie zawiera Content-Type: application/json lub Content-Length. Dodaj oba nagłówki.
-- 429 - Limit żądań został wyczerpany. Zmniejsz częstotliwość. Początkowy burst wynosi 40, a później dostępnych jest 20 żądań na sekundę.
+- 429 - Limit żądań został wyczerpany. Zmniejsz częstotliwość. Początkowy burst wynosi 40, a później dostępnych jest 20 żądań na sekundę. Limit jest wspólny dla wszystkich klientów.
 - 431 - Linia startowa i nagłówki przekraczają 16 KiB. Usuń niepotrzebne nagłówki.
 - 500 - Wystąpił błąd odczytu albo zapisu stanu lub preferencji. Sprawdź log aplikacji i uprawnienia katalogu danych.
 - 503 - Wszystkie 32 miejsca na połączenia są zajęte. Spróbuj ponownie po zamknięciu części połączeń.
@@ -497,7 +504,7 @@ Przy błędach składni HTTP o kodach 408, 413, 415 i 431 serwer zwykle zwraca e
 
 ## Rozwiązywanie problemów
 
-- 401 unauthorized - token jest nieaktualny, zawiera białe znaki albo proces nie ma prawa go odczytać. Na Linuksie plik ma prawa 0600.
+- 401 unauthorized - nagłówek Authorization niesie nieaktualny albo zły token, albo proces nie może odczytać pliku tokenu. Zawartość pliku jest przycinana przy starcie, więc białe znaki wokół tokenu w pliku nie szkodzą. Na Linuksie plik ma prawa 0600.
 - connection refused - aplikacja nie działa, nie uruchomiła jeszcze API albo port jest zajęty przez inny proces. Sprawdź GET /health.
 - connected: false - Arduino jest odłączone lub nie zostało rozpoznane. desired pozostanie zapisany i zostanie wysłany po ponownym podłączeniu.
 - alertsSupported: false - firmware nie zna komendy ALERT. Sterowanie LED nadal działa, ale alerty drukarki pozostają wyłączone do następnego ponownego połączenia.

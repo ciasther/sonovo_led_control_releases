@@ -58,7 +58,8 @@ Nach einer erfolgreichen Änderung liefert die API den vollständigen LED-Zustan
 - Für Startzeile und Header zusammen gilt ein Limit von 16 KiB. Der Body darf ebenfalls höchstens 16 KiB groß sein, außerdem sind maximal 64 Header zulässig.
 - Zum Einlesen der vollständigen Anfrage stehen 2 Sekunden zur Verfügung.
 - Gleichzeitig können höchstens 32 Verbindungen verarbeitet werden.
-- Der Rate-Limiter startet mit einem Burst von 40 Anfragen und füllt 20 Anfragen pro Sekunde nach. Sobald der Burst aufgebraucht ist, antwortet der Server mit 429.
+- Der Rate-Limiter startet mit einem Burst von 40 Anfragen und füllt 20 Anfragen pro Sekunde nach. Sobald der Burst aufgebraucht ist, antwortet der Server mit 429. Das Limit gilt gemeinsam für alle Clients des Prozesses.
+- Der Server antwortet auch mit 400 bei einem Body in einer anderen Anfrage als PUT sowie bei doppeltem Host-, Authorization-, Content-Length- oder Content-Type-Header.
 
 Der Arduino-Port hat genau einen Besitzer, nämlich diese Anwendung. Öffne den seriellen Port nicht selbst. Steuere die LEDs ausschließlich über die API.
 
@@ -89,13 +90,13 @@ curl -s http://127.0.0.1:32123/api/v1/capabilities \
   -H "Authorization: Bearer TOKEN"
 ```
 
-Beispielantwort für Version 0.6.9:
+Beispielantwort:
 
 ```json
 {
   "ok": true,
   "name": "windows-led",
-  "version": "0.6.9",
+  "version": "0.6.38",
   "processId": 4821,
   "port": 32123,
   "colors": ["white", "red", "green", "blue", "yellow", "cyan", "pink", "orange", "purple"],
@@ -132,6 +133,12 @@ Beispielantwort, wenn Arduino den Zustand noch nicht bestätigt hat:
   "alert": "none",
   "alertsSupported": true
 }
+```
+
+Das Feld color spiegelt die Eingabeform. Nach PUT mit einem Namen ist es ein String; nach PUT mit #RRGGBB oder einem Objekt ist es ein Objekt mit r, g und b. Beide Formen parsen:
+
+```json
+"color": {"r": 0, "g": 170, "b": 255}
 ```
 
 Bedeutung der Felder:
@@ -484,11 +491,11 @@ Fehler werden in diesem Format zurückgegeben:
 - 401 - Das Token fehlt oder ist ungültig. Prüfe den Authorization-Header.
 - 403 - Ein Origin-Header wurde gesendet. Verwende statt eines Browsers ein Backend oder einen lokalen Prozess.
 - 404 - Der Pfad ist unbekannt. Prüfe die URL.
-- 405 - Die Methode wird nicht unterstützt. Verwende GET oder PUT wie beim Endpunkt beschrieben.
+- 405 - Die Methode wird nicht unterstützt. Verwende GET oder PUT wie beim Endpunkt beschrieben. Für Pfade unter /api/v1/ wird zuerst das Token geprüft, eine Anfrage ohne gültiges Token erhält also 401, nicht 405.
 - 408 - Die vollständige Anfrage wurde nicht innerhalb von 2 Sekunden empfangen. Sende sie vollständig und schneller.
 - 413 - Der Body ist größer als 16 KiB oder die angegebene Länge überschreitet das Limit. Verkleinere den Body.
 - 415 - Bei einer PUT-Anfrage fehlt Content-Type: application/json oder Content-Length. Füge beide Header hinzu.
-- 429 - Das Anfragelimit ist aufgebraucht. Verringere die Häufigkeit. Der anfängliche Burst beträgt 40, danach stehen 20 Anfragen pro Sekunde zur Verfügung.
+- 429 - Das Anfragelimit ist aufgebraucht. Verringere die Häufigkeit. Der anfängliche Burst beträgt 40, danach stehen 20 Anfragen pro Sekunde zur Verfügung. Das Limit gilt gemeinsam für alle Clients.
 - 431 - Startzeile und Header überschreiten 16 KiB. Entferne unnötige Header.
 - 500 - Der Zustand oder die Einstellungen konnten nicht gelesen oder geschrieben werden. Prüfe das Anwendungsprotokoll und die Rechte des Datenverzeichnisses.
 - 503 - Alle 32 Verbindungsplätze sind belegt. Versuche es erneut, nachdem einige Verbindungen geschlossen wurden.
@@ -497,7 +504,7 @@ Bei HTTP-Syntaxfehlern mit den Codes 408, 413, 415 oder 431 antwortet der Server
 
 ## Fehlerbehebung
 
-- 401 unauthorized - das Token ist veraltet, enthält Leerzeichen oder der Prozess darf es nicht lesen. Unter Linux hat die Datei die Rechte 0600.
+- 401 unauthorized - der Authorization-Header enthält ein veraltetes oder falsches Token, oder der Prozess kann die Token-Datei nicht lesen. Der Dateiinhalt wird beim Start getrimmt, Leerraum um das Token in der Datei schadet also nicht. Unter Linux hat die Datei die Rechte 0600.
 - connection refused - die Anwendung läuft nicht, hat die API noch nicht geöffnet oder ein anderer Prozess verwendet den Port. Prüfe GET /health.
 - connected: false - Arduino ist getrennt oder wurde nicht erkannt. desired bleibt gespeichert und wird nach dem erneuten Verbinden gesendet.
 - alertsSupported: false - die Firmware kennt den Befehl ALERT nicht. Die LED-Steuerung funktioniert weiter, Druckeralarme bleiben jedoch bis zur nächsten erneuten Verbindung deaktiviert.
