@@ -3,7 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/ciasther/sonovo_led_control_releases?display_name=tag&sort=semver&style=for-the-badge&color=6c5ce7)](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 [![Windows](https://img.shields.io/badge/Windows-10%2F11-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 [![Linux](https://img.shields.io/badge/Linux-service-f39c12?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
-[![API](https://img.shields.io/badge/API-4_languages-00b894?style=for-the-badge)](#-local-api)
+[![API](https://img.shields.io/badge/API-4_languages-00b894?style=for-the-badge)](#local-api)
 
 Ready-to-use releases for the Nanovo LED strip controller.
 
