@@ -1,6 +1,6 @@
 # Lokalne API sterownika LED
 
-**Języki:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UK.md)
+**Języki:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UA.md)
 
 **Kontrakt API:** `v1` · **Platformy:** Windows i Linux
 

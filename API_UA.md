@@ -1,6 +1,6 @@
 # Локальний API контролера LED
 
-**Мови:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UK.md)
+**Мови:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UA.md)
 
 **Контракт API:** `v1` · **Платформи:** Windows і Linux
 

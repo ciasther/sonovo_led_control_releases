@@ -1,6 +1,6 @@
 # Local LED controller API
 
-**Languages:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UK.md)
+**Languages:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UA.md)
 
 **API contract:** `v1` · **Platforms:** Windows and Linux
 
