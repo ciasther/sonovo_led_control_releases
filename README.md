@@ -57,7 +57,7 @@ The application installs per user into `%LOCALAPPDATA%\Nanovo\WindowsLed`, start
 <details>
 <summary>USB driver for CH340 clone boards</summary>
 
-An original Arduino Leonardo uses the driver built into Windows. A clone with the CH340 chip has no driver in Windows 10 without Windows Update, so the device appears with an exclamation mark in Device Manager. The interactive installer adds the WHQL driver signed by Microsoft to the driver store once and asks for administrator confirmation (UAC) one time. Silent installations and automatic updates skip this step unless they receive `/CH340DRIVER=1`.
+An original Arduino Leonardo uses the driver built into Windows. A clone with the CH340 chip has no driver in Windows 10 without Windows Update, so the device appears with an exclamation mark in Device Manager. The installer adds the Microsoft-signed WHQL driver `CH341SER` 3.9.2024.9 to the driver store once — the same package Windows Update delivers. Started as an administrator it does so without any prompt; started by a standard user it asks for confirmation (UAC) one time. Silent installations without administrator rights and automatic updates skip this step, so a running device is never interrupted by a prompt.
 
 </details>
 

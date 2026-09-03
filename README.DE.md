@@ -57,7 +57,7 @@ Die Anwendung wird pro Benutzer nach `%LOCALAPPDATA%\Nanovo\WindowsLed` installi
 <details>
 <summary>USB-Treiber für Klone mit CH340-Chip</summary>
 
-Ein originaler Arduino Leonardo nutzt den in Windows eingebauten Treiber. Ein Klon mit CH340-Chip hat unter Windows 10 ohne Windows Update keinen Treiber, das Gerät erscheint im Geräte-Manager mit Ausrufezeichen. Der interaktive Installer legt den von Microsoft signierten WHQL-Treiber einmalig im Treiberspeicher ab und fragt einmal nach Administratorbestätigung (UAC). Stille Installationen und automatische Updates überspringen diesen Schritt, sofern sie nicht `/CH340DRIVER=1` erhalten.
+Ein originaler Arduino Leonardo nutzt den in Windows eingebauten Treiber. Ein Klon mit CH340-Chip hat unter Windows 10 ohne Windows Update keinen Treiber, das Gerät erscheint im Geräte-Manager mit Ausrufezeichen. Der Installer legt den von Microsoft signierten WHQL-Treiber `CH341SER` 3.9.2024.9 einmalig im Treiberspeicher ab — dasselbe Paket, das Windows Update liefert. Als Administrator gestartet geschieht das ohne jede Rückfrage, von einem Standardbenutzer gestartet fragt er einmal nach Bestätigung (UAC). Stille Installationen ohne Administratorrechte und automatische Updates überspringen diesen Schritt, damit ein laufendes Gerät nie durch eine Rückfrage unterbrochen wird.
 
 </details>
 

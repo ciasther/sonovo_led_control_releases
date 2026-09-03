@@ -57,7 +57,7 @@ Aplikacja instaluje się per użytkownik do `%LOCALAPPDATA%\Nanovo\WindowsLed`, 
 <details>
 <summary>Sterownik USB dla klonów z układem CH340</summary>
 
-Oryginalne Arduino Leonardo używa sterownika wbudowanego w Windows. Klon z układem CH340 nie ma sterownika w Windows 10 bez Windows Update, więc urządzenie pokazuje się z wykrzyknikiem w Menedżerze urządzeń. Interaktywny instalator dodaje raz do magazynu sterowników sterownik WHQL podpisany przez Microsoft i jeden raz prosi o potwierdzenie administratora (UAC). Ciche instalacje i automatyczne aktualizacje pomijają ten krok, chyba że dostaną `/CH340DRIVER=1`.
+Oryginalne Arduino Leonardo używa sterownika wbudowanego w Windows. Klon z układem CH340 nie ma sterownika w Windows 10 bez Windows Update, więc urządzenie pokazuje się z wykrzyknikiem w Menedżerze urządzeń. Instalator dodaje raz do magazynu sterowników sterownik WHQL `CH341SER` 3.9.2024.9 podpisany przez Microsoft — ten sam, który dostarcza Windows Update. Uruchomiony jako administrator robi to bez monitu, uruchomiony przez zwykłego użytkownika prosi raz o potwierdzenie (UAC). Instalacja cicha bez uprawnień administratora oraz automatyczna aktualizacja pomijają ten krok, żeby nigdy nie przerwać pracy urządzenia monitem.
 
 </details>
 
