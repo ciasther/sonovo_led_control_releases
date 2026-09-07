@@ -12,6 +12,67 @@ UNIT_PATH="/etc/systemd/system/linux-led.service"
 UDEV_PATH="/etc/udev/rules.d/99-z-linux-led.rules"
 DATA_DIR="/var/lib/linux-led-control-cli"
 
+# Klucz publiczny wydan Nanovo (Ed25519). Odpowiadajacy mu klucz prywatny nie
+# opuszcza runnera podpisujacego. Odcisk klucza jest w docs/RELEASING.md.
+SIGNING_PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEA0bzV+oqkugqFJW3yKvsDszGU/Jdzc8YjpJjmVGdic8E=
+-----END PUBLIC KEY-----'
+
+# Drugi klucz jest pusty poza oknem rotacji. W oknie stoi tu klucz nastepny,
+# zeby wydania podpisane starym i nowym kluczem instalowaly sie tak samo.
+SIGNING_PUBLIC_KEY_NEXT=''
+
+# Podpis Ed25519 nad cala binarka - bez posredniego skrotu, wiec ten sam podpis
+# nie moze znaczyc nic innego w innym kontekscie. Suma SHA-256 mowi tylko, ze
+# plik doszedl w calosci; podpis mowi, ze wydal go wlasciciel klucza.
+verify_signature() {
+    binary="$1"
+    signature="$2"
+    key_dir="$3"
+
+    if ! command -v openssl >/dev/null 2>&1; then
+        echo "brak openssl - nie mozna sprawdzic podpisu wydania" >&2
+        return 1
+    fi
+    if [ ! -s "$signature" ]; then
+        echo "brak pliku podpisu albo plik jest pusty: $signature" >&2
+        return 1
+    fi
+
+    checked=0
+    for candidate in "$SIGNING_PUBLIC_KEY" "$SIGNING_PUBLIC_KEY_NEXT"; do
+        [ -n "$candidate" ] || continue
+        checked=$((checked + 1))
+        printf '%s\n' "$candidate" > "$key_dir/nanovo-release.pub"
+        if openssl pkeyutl -verify -pubin -inkey "$key_dir/nanovo-release.pub" \
+            -rawin -in "$binary" -sigfile "$signature" >/dev/null 2>&1; then
+            return 0
+        fi
+    done
+
+    if [ "$checked" -eq 0 ]; then
+        echo "brak klucza publicznego do weryfikacji podpisu" >&2
+        return 1
+    fi
+    # Stary openssl nie zna -rawin dla Ed25519 i konczy sie tak samo jak zly
+    # podpis; rozroznienie jest wazne, bo pierwsze naprawia sie aktualizacja.
+    if ! openssl pkeyutl -verify -pubin -inkey "$key_dir/nanovo-release.pub" \
+        -rawin -in "$binary" -sigfile "$signature" 2>&1 |
+        grep -qi 'verification failure'; then
+        echo "nie mozna sprawdzic podpisu - wymagany openssl 3.x" >&2
+        return 1
+    fi
+    echo "podpis wydania jest nieprawidlowy" >&2
+    return 1
+}
+
+# Testy i CI laduja ten plik, zeby sprawdzic sama weryfikacje podpisu.
+# Komunikat jest po to, zeby ustawiona zmienna nigdy nie wygladala jak udana instalacja.
+if [ "${LED_INSTALL_SOURCE_ONLY:-0}" = "1" ]; then
+    echo "LED_INSTALL_SOURCE_ONLY=1 - zaladowano tylko funkcje, instalacja pominieta" >&2
+    return 0 2>/dev/null || exit 0
+fi
+
 if [ "$(id -u)" -ne 0 ]; then
     echo "install.sh musi byc uruchomiony jako root" >&2
     exit 1
@@ -58,9 +119,10 @@ extract_asset_digest() {
 
 bin_url="$(extract_download_url "$BIN_NAME")"
 sha_url="$(extract_download_url "$BIN_NAME.sha256")"
+sig_url="$(extract_download_url "$BIN_NAME.sig")"
 bin_digest="$(extract_asset_digest "$BIN_NAME")"
 
-if [ -z "$bin_url" ] || [ -z "$sha_url" ] || [ -z "$bin_digest" ]; then
+if [ -z "$bin_url" ] || [ -z "$sha_url" ] || [ -z "$sig_url" ] || [ -z "$bin_digest" ]; then
     echo "nie znaleziono wymaganych assetow lub digestu $BIN_NAME w najnowszym wydaniu" >&2
     exit 1
 fi
@@ -73,6 +135,7 @@ fi
 echo "pobieranie $BIN_NAME..." >&2
 curl -fsSL "$bin_url" -o "$work_dir/$BIN_NAME"
 curl -fsSL "$sha_url" -o "$work_dir/$BIN_NAME.sha256"
+curl -fsSL "$sig_url" -o "$work_dir/$BIN_NAME.sig"
 
 echo "weryfikacja sumy SHA-256..." >&2
 expected_sha="$(awk '{print $1}' "$work_dir/$BIN_NAME.sha256")"
@@ -85,6 +148,11 @@ fi
 
 if [ "$expected_sha" != "$actual_sha" ]; then
     echo "niezgodnosc sumy SHA-256: oczekiwano $expected_sha, otrzymano $actual_sha" >&2
+    exit 1
+fi
+
+echo "weryfikacja podpisu wydania..." >&2
+if ! verify_signature "$work_dir/$BIN_NAME" "$work_dir/$BIN_NAME.sig" "$work_dir"; then
     exit 1
 fi
 
