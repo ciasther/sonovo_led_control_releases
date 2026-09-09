@@ -1,6 +1,7 @@
 #!/bin/sh
 # Instaluje linux-led-control-cli jako systemd service. Uzycie:
-#   curl -fsSL <url> | sh
+#   curl -fsSL <url> | sudo sh
+# Sudo musi stac przed sh, nie przed curl - inaczej roota dostaje tylko pobieranie.
 set -eu
 
 REPO="ciasther/sonovo_led_control_releases"
@@ -75,6 +76,7 @@ fi
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "install.sh musi byc uruchomiony jako root" >&2
+    echo "uzyj: curl -fsSL <url> | sudo sh   (sudo przed sh, nie przed curl)" >&2
     exit 1
 fi
 

@@ -68,7 +68,7 @@ Voraussetzungen: x86_64, systemd, `curl`, Root-Zugriff.
 Ein Befehl als root:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ciasther/sonovo_led_control_releases/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/ciasther/sonovo_led_control_releases/main/install.sh | sudo sh
 ```
 
 Das Skript:
