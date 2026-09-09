@@ -169,6 +169,9 @@ cat > "$UNIT_PATH" <<'UNIT'
 [Unit]
 Description=Linux LED control CLI
 After=local-fs.target
+# Grupy urzadzen musza byc rozwiazywalne przy starcie unitu, stad modprobe@
+Wants=modprobe@usbserial.service modprobe@cdc_acm.service
+After=modprobe@usbserial.service modprobe@cdc_acm.service
 
 [Service]
 ExecStart=/usr/bin/env -- /usr/local/libexec/linux-led-control-cli
@@ -177,6 +180,7 @@ Group=linux-led
 StateDirectory=linux-led-control-cli
 StateDirectoryMode=0700
 DevicePolicy=closed
+DeviceAllow=char-ttyUSB* rw
 DeviceAllow=char-ttyACM* rw
 DeviceAllow=char-usb_device rw
 IPAddressDeny=any
@@ -208,8 +212,8 @@ UNIT
 chmod 0644 "$UNIT_PATH"
 
 cat > "$UDEV_PATH" <<'UDEV'
-SUBSYSTEM=="tty", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", GROUP:="linux-led", MODE:="0660", TAG-="uaccess"
-SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", GROUP:="linux-led", MODE:="0660", TAG-="uaccess"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", GROUP:="linux-led", MODE:="0660", TAG-="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", GROUP:="linux-led", MODE:="0660", TAG-="uaccess", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1"
 SUBSYSTEM=="usb", ATTR{idVendor}=="0006", ATTR{idProduct}=="000b", GROUP:="linux-led", MODE:="0660"
 UDEV
 chmod 0644 "$UDEV_PATH"
