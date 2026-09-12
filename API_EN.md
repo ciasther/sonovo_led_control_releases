@@ -1,8 +1,26 @@
-# Local LED controller API
+<div align="center">
 
-**Languages:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UA.md)
+<h1>Local LED controller API</h1>
 
-**API contract:** `v1` · **Platforms:** Windows and Linux
+<p>
+  <a href="API_EN.md"><img alt="English" src="https://img.shields.io/badge/English-0969DA?style=flat-square"></a>
+  <a href="API_PL.md"><img alt="Polski" src="https://img.shields.io/badge/Polski-D1242F?style=flat-square"></a>
+  <a href="API_DE.md"><img alt="Deutsch" src="https://img.shields.io/badge/Deutsch-1F883D?style=flat-square"></a>
+  <a href="API_UA.md"><img alt="Українська" src="https://img.shields.io/badge/%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D1%81%D1%8C%D0%BA%D0%B0-8250DF?style=flat-square"></a>
+</p>
+
+<p>
+  <a href="#linux-token"><img alt="Linux" src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&amp;logo=linux&amp;logoColor=000000"></a>
+  <a href="#windows-token"><img alt="Windows" src="https://img.shields.io/badge/Windows-0078D4?style=flat-square&amp;logo=windows11&amp;logoColor=ffffff"></a>
+  <a href="#endpoints"><img alt="Endpoints" src="https://img.shields.io/badge/Endpoints-2EA44F?style=flat-square"></a>
+  <a href="#integration"><img alt="Integration" src="https://img.shields.io/badge/Integration-8250DF?style=flat-square"></a>
+  <a href="#errors"><img alt="Errors" src="https://img.shields.io/badge/Errors-D1242F?style=flat-square"></a>
+</p>
+
+<p><strong>Languages:</strong> <a href="API_EN.md">English</a> · <a href="API_PL.md">Polski</a> · <a href="API_DE.md">Deutsch</a> · <a href="API_UA.md">Українська</a></p>
+<p><strong>API contract:</strong> <code>v1</code> · <strong>Platforms:</strong> Windows and Linux</p>
+
+</div>
 
 This is the local HTTP/1.1 API used by the LED strip controller application. It runs on the same machine as the application and listens at http://127.0.0.1:32123. It cannot be reached from the network or called directly from a browser.
 
@@ -14,7 +32,16 @@ The API contract is identical on Windows and Linux. There is no separate client 
 
 The token is created automatically the first time the application starts. It is a 64-character hexadecimal string.
 
+<a id="windows-token"></a>
+
+#### Windows
+
 - Windows: %LOCALAPPDATA%\Nanovo\WindowsLed\api.token.
+
+<a id="linux-token"></a>
+
+#### Linux
+
 - Linux: /var/lib/linux-led-control-cli/api.token, permissions 0600, owner linux-led.
 - In the kiosk image, the ISO script may provide a copy for the kiosk client at /etc/sonovo-kiosk-os/linux-led.token, owned by root:kiosk with permissions 0640. A regular installation through linux/install.sh does not create this copy.
 
@@ -28,6 +55,10 @@ TOKEN is only a placeholder in the examples. Never put the real token in source 
 
 ### First command
 
+<a id="linux-quick-start"></a>
+
+#### Linux
+
 The token-reading command below is for a Linux installation. On Windows, use the PowerShell example that follows it.
 
 ```sh
@@ -38,6 +69,10 @@ curl -s -X PUT http://127.0.0.1:32123/api/v1/color \
   -H "Content-Type: application/json" \
   -d '{"color":"red"}'
 ```
+
+<a id="windows-quick-start"></a>
+
+#### Windows
 
 ```powershell
 $token = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
@@ -62,6 +97,8 @@ After a successful update, the API returns the complete LED state. desired is th
 - The server also returns 400 for a body on a request other than PUT and for a duplicated Host, Authorization, Content-Length or Content-Type header.
 
 The Arduino port has a single owner, which is this application. Do not open the serial port yourself. Control the LEDs only through the API.
+
+<a id="endpoints"></a>
 
 ## Endpoints
 
@@ -160,12 +197,16 @@ After a reconnect, the application synchronizes the LED state and alert again. D
 
 The body must contain exactly five keys: on, color, brightness, effect and speed. A missing or additional key results in a 400 response. A successful response has the same shape as GET /api/v1/state.
 
+#### curl
+
 ```sh
 curl -s -X PUT http://127.0.0.1:32123/api/v1/state \
   -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"on":true,"color":"blue","brightness":80,"effect":"blink","speed":"fast"}'
 ```
+
+#### PowerShell
 
 ```powershell
 $body = '{"on":true,"color":"blue","brightness":80,"effect":"blink","speed":"fast"}'
@@ -265,11 +306,17 @@ This is not a request error. All fields can safely be sent together in one objec
 
 alert is a read-only state derived from the HMK-072 printer. It cannot be changed through the API. PUT /api/v1/printer-alerts only enables or disables monitoring. If older firmware rejects ALERT, alertsSupported remains false until the next reconnect while LED control continues to work.
 
+<a id="integration"></a>
+
 ## Integration examples
 
 All examples use TOKEN as a placeholder. Before running them, replace it with the real token or set the NANOVO_API_TOKEN environment variable.
 
-### curl / sh
+<a id="linux-integration"></a>
+
+### Linux
+
+#### curl / sh
 
 ```sh
 BASE="http://127.0.0.1:32123"
@@ -291,7 +338,11 @@ curl -s "$BASE/api/v1/printer-alerts" -H "$AUTH"
 curl -s -X PUT "$BASE/api/v1/printer-alerts" -H "$AUTH" -H "$JSON" -d '{"enabled":true}'
 ```
 
-### PowerShell
+<a id="windows-integration"></a>
+
+### Windows
+
+#### PowerShell
 
 ```powershell
 $base = "http://127.0.0.1:32123"
@@ -323,7 +374,11 @@ On Windows, the token can be read instead of using the placeholder:
 $token = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
 ```
 
-### Python, standard library
+<a id="shared-integration"></a>
+
+### Shared
+
+#### Python, standard library
 
 ```python
 import json
@@ -371,11 +426,15 @@ for method, path, body in requests:
     print(path, call(method, path, body))
 ```
 
+##### Linux
+
 On Linux, set the token for example like this:
 
 ```sh
 export NANOVO_API_TOKEN="$(sudo cat /var/lib/linux-led-control-cli/api.token)"
 ```
+
+##### Windows
 
 On Windows, set the same variable in PowerShell:
 
@@ -383,7 +442,7 @@ On Windows, set the same variable in PowerShell:
 $env:NANOVO_API_TOKEN = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
 ```
 
-### Node.js fetch, ESM, Node 18+
+#### Node.js fetch, ESM, Node 18+
 
 Save the example as example.mjs or enable ESM in package.json. The built-in fetch function is available from Node 18.
 
@@ -427,7 +486,7 @@ for (const [method, path, body] of [
 
 Run the file as an ESM module, for example as example.mjs. The built-in fetch function requires Node 18 or newer.
 
-### C# HttpClient, .NET 6+
+#### C# HttpClient, .NET 6+
 
 JsonContent.Create sets Content-Type: application/json. The example can be pasted into a program that uses top-level statements.
 
@@ -477,6 +536,8 @@ Console.WriteLine(await CallAsync(client, HttpMethod.Put, "/api/v1/power", new {
 Console.WriteLine(await CallAsync(client, HttpMethod.Get, "/api/v1/printer-alerts"));
 Console.WriteLine(await CallAsync(client, HttpMethod.Put, "/api/v1/printer-alerts", new { enabled = true }));
 ```
+
+<a id="errors"></a>
 
 ## Response and error codes
 
