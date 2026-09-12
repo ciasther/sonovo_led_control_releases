@@ -1,8 +1,26 @@
-# Локальний API контролера LED
+<div align="center">
 
-**Мови:** [English](API_EN.md) · [Polski](API_PL.md) · [Deutsch](API_DE.md) · [Українська](API_UA.md)
+<h1>Локальний API контролера LED</h1>
 
-**Контракт API:** `v1` · **Платформи:** Windows і Linux
+<p>
+  <a href="API_EN.md"><img alt="English" src="https://img.shields.io/badge/English-0969DA?style=flat-square"></a>
+  <a href="API_PL.md"><img alt="Polski" src="https://img.shields.io/badge/Polski-D1242F?style=flat-square"></a>
+  <a href="API_DE.md"><img alt="Deutsch" src="https://img.shields.io/badge/Deutsch-1F883D?style=flat-square"></a>
+  <a href="API_UA.md"><img alt="Українська" src="https://img.shields.io/badge/%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D1%81%D1%8C%D0%BA%D0%B0-8250DF?style=flat-square"></a>
+</p>
+
+<p>
+  <a href="#linux-token"><img alt="Linux" src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&amp;logo=linux&amp;logoColor=000000"></a>
+  <a href="#windows-token"><img alt="Windows" src="https://img.shields.io/badge/Windows-0078D4?style=flat-square&amp;logo=windows11&amp;logoColor=ffffff"></a>
+  <a href="#endpoints"><img alt="Ендпоінти" src="https://img.shields.io/badge/%D0%95%D0%BD%D0%B4%D0%BF%D0%BE%D1%96%D0%BD%D1%82%D0%B8-2EA44F?style=flat-square"></a>
+  <a href="#integration"><img alt="Інтеграція" src="https://img.shields.io/badge/%D0%86%D0%BD%D1%82%D0%B5%D0%B3%D1%80%D0%B0%D1%86%D1%96%D1%8F-8250DF?style=flat-square"></a>
+  <a href="#errors"><img alt="Помилки" src="https://img.shields.io/badge/%D0%9F%D0%BE%D0%BC%D0%B8%D0%BB%D0%BA%D0%B8-D1242F?style=flat-square"></a>
+</p>
+
+<p><strong>Мови:</strong> <a href="API_EN.md">English</a> · <a href="API_PL.md">Polski</a> · <a href="API_DE.md">Deutsch</a> · <a href="API_UA.md">Українська</a></p>
+<p><strong>Контракт API:</strong> <code>v1</code> · <strong>Платформи:</strong> Windows і Linux</p>
+
+</div>
 
 Це локальний API HTTP/1.1 застосунку для керування світлодіодною стрічкою. Він працює на тому самому комп'ютері, що й застосунок, за адресою http://127.0.0.1:32123. Доступу до нього з мережі або безпосередньо з браузера немає.
 
@@ -14,7 +32,16 @@
 
 Токен створюється автоматично під час першого запуску застосунку. Він складається з 64 шістнадцяткових символів.
 
+<a id="windows-token"></a>
+
+#### Windows
+
 - Windows: %LOCALAPPDATA%\Nanovo\WindowsLed\api.token.
+
+<a id="linux-token"></a>
+
+#### Linux
+
 - Linux: /var/lib/linux-led-control-cli/api.token, права 0600, власник linux-led.
 - В образі кіоску ISO-скрипт може створити копію для клієнта кіоску за шляхом /etc/sonovo-kiosk-os/linux-led.token. Власник root:kiosk, права 0640. Звичайне встановлення через linux/install.sh цю копію не створює.
 
@@ -28,6 +55,10 @@ TOKEN у прикладах є лише заповнювачем. Не дода�
 
 ### Перша команда
 
+<a id="linux-quick-start"></a>
+
+#### Linux
+
 Наведений нижче спосіб читання токена стосується встановлення в Linux. У Windows скористайся прикладом PowerShell одразу після нього.
 
 ```sh
@@ -38,6 +69,10 @@ curl -s -X PUT http://127.0.0.1:32123/api/v1/color \
   -H "Content-Type: application/json" \
   -d '{"color":"red"}'
 ```
+
+<a id="windows-quick-start"></a>
+
+#### Windows
 
 ```powershell
 $token = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
@@ -62,6 +97,8 @@ Invoke-RestMethod -Method Put -Uri "http://127.0.0.1:32123/api/v1/color" -Header
 - Сервер також повертає 400 для тіла в запиті, відмінному від PUT, і для продубльованого заголовка Host, Authorization, Content-Length або Content-Type.
 
 Порт Arduino має лише одного власника, цей застосунок. Не відкривай послідовний порт самостійно. Керуй світлодіодами тільки через API.
+
+<a id="endpoints"></a>
 
 ## Ендпоінти
 
@@ -160,12 +197,16 @@ curl -s http://127.0.0.1:32123/api/v1/state \
 
 Тіло повинно містити рівно п'ять ключів: on, color, brightness, effect і speed. Відсутній або зайвий ключ спричиняє відповідь 400. Успішна відповідь має таку саму структуру, як GET /api/v1/state.
 
+#### curl
+
 ```sh
 curl -s -X PUT http://127.0.0.1:32123/api/v1/state \
   -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"on":true,"color":"blue","brightness":80,"effect":"blink","speed":"fast"}'
 ```
+
+#### PowerShell
 
 ```powershell
 $body = '{"on":true,"color":"blue","brightness":80,"effect":"blink","speed":"fast"}'
@@ -265,11 +306,17 @@ curl -s -X PUT http://127.0.0.1:32123/api/v1/printer-alerts \
 
 alert є станом лише для читання, який залежить від принтера HMK-072. Змінити його через API не можна. PUT /api/v1/printer-alerts тільки вмикає або вимикає моніторинг. Якщо стара прошивка відхилить ALERT, alertsSupported матиме значення false до наступного повторного підключення, а керування LED продовжить працювати.
 
+<a id="integration"></a>
+
 ## Приклади інтеграції
 
 У всіх прикладах TOKEN використовується як заповнювач. Перед запуском заміни його справжнім токеном або встанови змінну середовища NANOVO_API_TOKEN.
 
-### curl / sh
+<a id="linux-integration"></a>
+
+### Linux
+
+#### curl / sh
 
 ```sh
 BASE="http://127.0.0.1:32123"
@@ -291,7 +338,11 @@ curl -s "$BASE/api/v1/printer-alerts" -H "$AUTH"
 curl -s -X PUT "$BASE/api/v1/printer-alerts" -H "$AUTH" -H "$JSON" -d '{"enabled":true}'
 ```
 
-### PowerShell
+<a id="windows-integration"></a>
+
+### Windows
+
+#### PowerShell
 
 ```powershell
 $base = "http://127.0.0.1:32123"
@@ -323,7 +374,11 @@ Put-Json "/api/v1/printer-alerts" @{ enabled = $true }
 $token = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
 ```
 
-### Python, стандартна бібліотека
+<a id="shared-integration"></a>
+
+### Спільне
+
+#### Python, стандартна бібліотека
 
 ```python
 import json
@@ -371,11 +426,15 @@ for method, path, body in requests:
     print(path, call(method, path, body))
 ```
 
+##### Linux
+
 У Linux токен можна встановити, наприклад, так:
 
 ```sh
 export NANOVO_API_TOKEN="$(sudo cat /var/lib/linux-led-control-cli/api.token)"
 ```
+
+##### Windows
 
 У Windows ту саму змінну встанови в PowerShell:
 
@@ -383,7 +442,7 @@ export NANOVO_API_TOKEN="$(sudo cat /var/lib/linux-led-control-cli/api.token)"
 $env:NANOVO_API_TOKEN = (Get-Content "$env:LOCALAPPDATA\Nanovo\WindowsLed\api.token" -Raw).Trim()
 ```
 
-### Node.js fetch, ESM, Node 18+
+#### Node.js fetch, ESM, Node 18+
 
 Збережи приклад як example.mjs або ввімкни ESM у package.json. Вбудована функція fetch доступна починаючи з Node 18.
 
@@ -427,7 +486,7 @@ for (const [method, path, body] of [
 
 Запусти файл як модуль ESM, наприклад під назвою example.mjs. Вбудована функція fetch потребує Node 18 або новішої версії.
 
-### C# HttpClient, .NET 6+
+#### C# HttpClient, .NET 6+
 
 JsonContent.Create встановлює Content-Type: application/json. Приклад можна вставити безпосередньо в програму з top-level statements.
 
@@ -477,6 +536,8 @@ Console.WriteLine(await CallAsync(client, HttpMethod.Put, "/api/v1/power", new {
 Console.WriteLine(await CallAsync(client, HttpMethod.Get, "/api/v1/printer-alerts"));
 Console.WriteLine(await CallAsync(client, HttpMethod.Put, "/api/v1/printer-alerts", new { enabled = true }));
 ```
+
+<a id="errors"></a>
 
 ## Коди відповідей і помилок
 
