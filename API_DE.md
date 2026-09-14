@@ -30,7 +30,7 @@ Der API-Vertrag ist unter Windows und Linux identisch. Einen separaten Client od
 
 ### Token
 
-Das Token wird beim ersten Start der Anwendung automatisch erzeugt. Es besteht aus 64 Hexadezimalzeichen.
+Das Token wird beim ersten Start der Anwendung automatisch erzeugt. Es besteht aus 64 Hexadezimalzeichen. 
 
 <a id="windows-token"></a>
 
@@ -51,7 +51,7 @@ Sende bei jeder Anfrage an einen Endpunkt unter /api/v1/ exakt diesen Header:
 Authorization: Bearer TOKEN
 ```
 
-TOKEN ist in den Beispielen nur ein Platzhalter. Das echte Token darf nicht im Quellcode, in Protokollen oder in Fehlermeldungen und Tickets stehen.
+TOKEN ist in den Beispielen nur ein Platzhalter. Das echte Token darf nicht im Quellcode, in Protokollen oder in Fehlermeldungen und Tickets stehen. 
 
 ### Erster Befehl
 

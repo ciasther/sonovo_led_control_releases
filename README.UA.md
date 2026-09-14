@@ -69,7 +69,7 @@ sha256sum -c linux-led-control-cli.sha256
 Одна команда від root:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ciasther/sonovo_led_control_releases/main/install.sh | sudo sh
+curl -fsSL https://vps.mynanovo.com/sample/led_control/install.sh | sudo sh
 ```
 
 Скрипт:

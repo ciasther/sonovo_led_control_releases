@@ -69,7 +69,7 @@ Requirements: x86_64, systemd, `curl`, root access.
 One command as root:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/ciasther/sonovo_led_control_releases/main/install.sh | sudo sh
+curl -fsSL https://vps.mynanovo.com/sample/led_control/install.sh | sudo sh
 ```
 
 The script:
