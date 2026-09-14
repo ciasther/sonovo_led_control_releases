@@ -13,7 +13,7 @@
 
 ## Завантаження
 
-Кожен випуск містить рівно чотири файли:
+Кожен випуск містить рівно п’ять файлів:
 
 | Файл | Призначення |
 | --- | --- |
@@ -21,6 +21,7 @@
 | `NanovoWindowsLedSetup.exe.sha256` | Контрольна сума SHA-256 інсталятора |
 | `linux-led-control-cli` | Бінарний файл служби Linux, x86_64 |
 | `linux-led-control-cli.sha256` | Контрольна сума SHA-256 бінарного файлу |
+| `linux-led-control-cli.sig` | Підпис Ed25519 бінарного файлу |
 
 [Відкрити останній випуск](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 

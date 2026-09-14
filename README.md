@@ -13,7 +13,7 @@ Ready-to-use releases of the Nanovo LED strip controller: a Windows tray applica
 
 ## Downloads
 
-Every release ships exactly four files:
+Every release ships exactly five files:
 
 | File | Purpose |
 | --- | --- |
@@ -21,6 +21,7 @@ Every release ships exactly four files:
 | `NanovoWindowsLedSetup.exe.sha256` | SHA-256 checksum of the installer |
 | `linux-led-control-cli` | Linux service binary, x86_64 |
 | `linux-led-control-cli.sha256` | SHA-256 checksum of the binary |
+| `linux-led-control-cli.sig` | Ed25519 signature of the binary |
 
 [Open the latest release](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 

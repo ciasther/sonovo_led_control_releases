@@ -13,7 +13,7 @@ Fertige Versionen der Nanovo-LED-Streifensteuerung: eine Windows-Anwendung mit T
 
 ## Downloads
 
-Jede Version enthält genau vier Dateien:
+Jede Version enthält genau fünf Dateien:
 
 | Datei | Zweck |
 | --- | --- |
@@ -21,6 +21,7 @@ Jede Version enthält genau vier Dateien:
 | `NanovoWindowsLedSetup.exe.sha256` | SHA-256-Prüfsumme des Installers |
 | `linux-led-control-cli` | Linux-Dienst, Binärdatei x86_64 |
 | `linux-led-control-cli.sha256` | SHA-256-Prüfsumme der Binärdatei |
+| `linux-led-control-cli.sig` | Ed25519-Signatur der Binärdatei |
 
 [Neueste Version öffnen](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 

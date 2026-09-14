@@ -13,7 +13,7 @@ Gotowe wydania sterownika taśmy LED Nanovo: aplikacja Windows z ikoną w trayu 
 
 ## Pliki do pobrania
 
-Każde wydanie zawiera dokładnie cztery pliki:
+Każde wydanie zawiera dokładnie pięć plików:
 
 | Plik | Przeznaczenie |
 | --- | --- |
@@ -21,6 +21,7 @@ Każde wydanie zawiera dokładnie cztery pliki:
 | `NanovoWindowsLedSetup.exe.sha256` | Suma SHA-256 instalatora |
 | `linux-led-control-cli` | Binarka usługi Linux, x86_64 |
 | `linux-led-control-cli.sha256` | Suma SHA-256 binarki |
+| `linux-led-control-cli.sig` | Podpis Ed25519 binarki |
 
 [Otwórz najnowsze wydanie](https://github.com/ciasther/sonovo_led_control_releases/releases/latest)
 
